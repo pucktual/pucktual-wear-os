@@ -22,51 +22,63 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
+import androidx.wear.compose.navigation.SwipeDismissableNavHost
+import androidx.wear.compose.navigation.composable
+import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import androidx.wear.tooling.preview.devices.WearDevices
 import de.florianostertag.coffeehelper.R
+import de.florianostertag.coffeehelper.api.AuthManager
 import de.florianostertag.coffeehelper.presentation.theme.CoffeeHelperTheme
+import de.florianostertag.coffeehelper.ui.BeanListScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
+        AuthManager.authToken = "DEIN_FESTER_TOKEN"
 
         setTheme(android.R.style.Theme_DeviceDefault)
 
         setContent {
-            WearApp("Android")
+            WearApp()
         }
     }
 }
 
 @Composable
-fun WearApp(greetingName: String) {
+fun WearApp() {
     CoffeeHelperTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colors.background),
-            contentAlignment = Alignment.Center
+        val navController = rememberSwipeDismissableNavController()
+
+        SwipeDismissableNavHost(
+            navController = navController,
+            startDestination = "beanList"
         ) {
-            TimeText()
-            Greeting(greetingName = greetingName)
+            composable("beanList") {
+                BeanListScreen(
+                    onBeanSelected = { beanId ->
+                        navController.navigate("extractionDetail/$beanId")
+                    }
+                )
+            }
+
+            // 2. Detailansicht (wird als Nächstes implementiert)
+            composable("extractionDetail/{beanId}") { backStackEntry ->
+                val beanId = backStackEntry.arguments?.getString("beanId")?.toLongOrNull()
+                if (beanId != null) {
+                    // TODO: ExtractionDetailScreen(beanId = beanId) implementieren
+                    Text("Lade Rezepte für Bohne $beanId...")
+                } else {
+                    Text("Fehler: Bohne nicht gefunden.")
+                }
+            }
         }
     }
-}
-
-@Composable
-fun Greeting(greetingName: String) {
-    Text(
-        modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center,
-        color = MaterialTheme.colors.primary,
-        text = stringResource(R.string.hello_world, greetingName)
-    )
 }
 
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
 fun DefaultPreview() {
-    WearApp("Preview Android")
+    WearApp()
 }

@@ -15,7 +15,7 @@ tilesToolingPreview = "1.4.0"
 horologistComposeTools = "0.6.17"
 horologistTiles = "0.6.17"
 watchfaceComplicationsDataSourceKtx = "1.2.1"
-ksp = "2.2.10-2.0.2"
+ksp = "2.0.21-1.0.25"
 
 [libraries]
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
