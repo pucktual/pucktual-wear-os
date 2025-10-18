@@ -70,6 +70,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.wear.compose:compose-material:1.3.1")
     implementation("androidx.wear.compose:compose-navigation:1.3.1")
+    implementation("androidx.compose.material:material-icons-extended")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")

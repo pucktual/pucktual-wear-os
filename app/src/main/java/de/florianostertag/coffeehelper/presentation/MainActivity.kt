@@ -19,6 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
@@ -30,6 +33,8 @@ import de.florianostertag.coffeehelper.R
 import de.florianostertag.coffeehelper.api.AuthManager
 import de.florianostertag.coffeehelper.presentation.theme.CoffeeHelperTheme
 import de.florianostertag.coffeehelper.ui.BeanListScreen
+import de.florianostertag.coffeehelper.ui.ExtractionDetailScreen
+import de.florianostertag.coffeehelper.ui.ExtractionDetailViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,12 +68,19 @@ fun WearApp() {
                 )
             }
 
-            // 2. Detailansicht (wird als Nächstes implementiert)
             composable("extractionDetail/{beanId}") { backStackEntry ->
                 val beanId = backStackEntry.arguments?.getString("beanId")?.toLongOrNull()
                 if (beanId != null) {
-                    // TODO: ExtractionDetailScreen(beanId = beanId) implementieren
-                    Text("Lade Rezepte für Bohne $beanId...")
+                    // Hinzufügen der Navigation für den ViewModel-Konstruktor
+                    ExtractionDetailScreen(
+                        viewModel = viewModel(
+                            factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                    return ExtractionDetailViewModel(SavedStateHandle(mapOf("beanId" to beanId))) as T
+                                }
+                            }
+                        )
+                    )
                 } else {
                     Text("Fehler: Bohne nicht gefunden.")
                 }
