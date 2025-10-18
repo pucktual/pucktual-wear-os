@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class BeanListViewModel : ViewModel() {
+open class BeanListViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
+    val _uiState = MutableStateFlow<UiState>(UiState.Loading)
     val uiState: StateFlow<UiState> = _uiState
 
     sealed class UiState {
@@ -23,7 +23,7 @@ class BeanListViewModel : ViewModel() {
         loadBeans()
     }
 
-    fun loadBeans() {
+    open fun loadBeans() {
         _uiState.value = UiState.Loading
         viewModelScope.launch {
             try {

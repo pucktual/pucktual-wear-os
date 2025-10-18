@@ -20,3 +20,11 @@ data class Extraction(
     val grind: Int?,
     val nextExtractionHint: String?
 )
+
+fun getMockBeans(): List<Bean> {
+    return listOf(
+        Bean(id = 1, name = "Kolumbien La Palma", manufacturer = "Röster XYZ"),
+        Bean(id = 2, name = "Äthiopien Yirgacheffe", manufacturer = "Spezialitätenrösterei"),
+        Bean(id = 3, name = "Brasilien Santos", manufacturer = "Großröster")
+    )
+}

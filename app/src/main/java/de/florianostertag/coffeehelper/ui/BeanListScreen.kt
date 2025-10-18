@@ -18,6 +18,9 @@ import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
+import androidx.wear.tooling.preview.devices.WearDevices
+import de.florianostertag.coffeehelper.data.getMockBeans
+import de.florianostertag.coffeehelper.presentation.theme.CoffeeHelperTheme
 
 @Composable
 fun BeanListScreen(
@@ -68,5 +71,39 @@ fun BeanListScreen(
                 }
             }
         }
+    }
+}
+
+class PreviewBeanListViewModel : BeanListViewModel() {
+    init {
+        _uiState.value = UiState.Success(getMockBeans())
+    }
+    override fun loadBeans() { /* Do nothing */ }
+}
+
+
+@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
+@Composable
+fun BeanListScreenPreview() {
+    CoffeeHelperTheme {
+        BeanListScreen(
+            viewModel = PreviewBeanListViewModel(),
+            onBeanSelected = { id -> println("Bean selected: $id") }
+        )
+    }
+}
+
+@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
+@Composable
+fun BeanListScreenLoadingPreview() {
+    val loadingViewModel = object : BeanListViewModel() {
+        init { _uiState.value = UiState.Loading }
+        override fun loadBeans() { /* Do nothing */ }
+    }
+    CoffeeHelperTheme {
+        BeanListScreen(
+            viewModel = loadingViewModel,
+            onBeanSelected = { /* ... */ }
+        )
     }
 }
