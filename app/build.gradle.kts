@@ -71,10 +71,20 @@ dependencies {
     implementation("androidx.wear.compose:compose-material:1.3.1")
     implementation("androidx.wear.compose:compose-navigation:1.3.1")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.wear:wear-input:1.2.0")
+
+    // Tiles
+    implementation("androidx.wear.tiles:tiles:1.3.0")
+    implementation("androidx.wear.tiles:tiles-material:1.3.0")
+    implementation("androidx.wear.tiles:tiles-renderer:1.3.0")
+    debugImplementation("androidx.wear.tiles:tiles-tooling-preview:1.3.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
 
     // Retrofit (HTTP-Client)
     implementation("com.squareup.retrofit2:retrofit:2.11.0")

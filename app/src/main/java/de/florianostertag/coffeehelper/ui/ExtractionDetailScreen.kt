@@ -46,7 +46,12 @@ import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
 import androidx.wear.tooling.preview.devices.WearDevices
+import de.florianostertag.coffeehelper.api.CoffeeApiService
+import de.florianostertag.coffeehelper.data.Bean
 import de.florianostertag.coffeehelper.data.Extraction
+import de.florianostertag.coffeehelper.data.LoginRequest
+import de.florianostertag.coffeehelper.data.LoginResponse
+import de.florianostertag.coffeehelper.data.getMockBeans
 import de.florianostertag.coffeehelper.presentation.theme.CoffeeHelperTheme
 
 @Composable
@@ -247,16 +252,12 @@ fun Divider(
     )
 }
 
-class PreviewExtractionDetailViewModel : ExtractionDetailViewModel(
-    savedStateHandle = SavedStateHandle(mapOf("beanId" to 1L))
+class PreviewExtractionDetailViewModel(val previewState: UiState) : ExtractionDetailViewModel(
+    beanId = 1L,
+    apiService = MockCoffeeApiService(),
 ) {
-    // Überschreibe den Zustand, um Mock-Daten zu liefern
-    init {
-        _uiState.value = UiState.Success(getMockExtractions())
-    }
-
-    // Überschreibe loadExtractions, damit es nichts tut
-    fun loadExtractions() { /* Do nothing */ }
+    init { _uiState.value = previewState }
+    override fun loadExtractions() { /* Do nothing */ }
 }
 
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
@@ -264,7 +265,7 @@ class PreviewExtractionDetailViewModel : ExtractionDetailViewModel(
 fun ExtractionDetailScreenPreviewRound() {
     CoffeeHelperTheme {
         ExtractionDetailScreen(
-            viewModel = PreviewExtractionDetailViewModel()
+            viewModel = PreviewExtractionDetailViewModel(ExtractionDetailViewModel.UiState.Empty)
         )
     }
 }
@@ -274,7 +275,7 @@ fun ExtractionDetailScreenPreviewRound() {
 fun ExtractionDetailScreenPreviewSquare() {
     CoffeeHelperTheme {
         ExtractionDetailScreen(
-            viewModel = PreviewExtractionDetailViewModel()
+            viewModel = PreviewExtractionDetailViewModel(ExtractionDetailViewModel.UiState.Loading)
         )
     }
 }
@@ -283,9 +284,9 @@ fun ExtractionDetailScreenPreviewSquare() {
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true, name = "Loading State")
 @Composable
 fun ExtractionDetailScreenLoadingPreview() {
-    val loadingViewModel = object : ExtractionDetailViewModel(SavedStateHandle(mapOf("beanId" to 1L))) {
+    val loadingViewModel = object : ExtractionDetailViewModel(beanId = 1L, apiService = MockCoffeeApiService()) {
         init { _uiState.value = UiState.Loading }
-        fun loadExtractions() { /* Do nothing */ }
+        override fun loadExtractions() { /* Do nothing */ }
     }
     CoffeeHelperTheme {
         ExtractionDetailScreen(

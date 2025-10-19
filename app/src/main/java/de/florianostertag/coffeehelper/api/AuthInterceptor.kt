@@ -3,12 +3,20 @@ package de.florianostertag.coffeehelper.api
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class AuthInterceptor : Interceptor {
+open class AuthInterceptor(private val authManager: AuthManager) : Interceptor {
+
+    @Volatile
+    private var currentToken: String? = null
+
+    fun setToken(token: String?) {
+        this.currentToken = token
+    }
+
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         val builder = request.newBuilder()
 
-        AuthManager.authToken?.let { token ->
+        currentToken?.let { token ->
             builder.addHeader("Authorization", "Bearer $token")
         }
 

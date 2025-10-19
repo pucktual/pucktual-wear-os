@@ -19,6 +19,11 @@ import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
 import androidx.wear.tooling.preview.devices.WearDevices
+import de.florianostertag.coffeehelper.api.CoffeeApiService
+import de.florianostertag.coffeehelper.data.Bean
+import de.florianostertag.coffeehelper.data.Extraction
+import de.florianostertag.coffeehelper.data.LoginRequest
+import de.florianostertag.coffeehelper.data.LoginResponse
 import de.florianostertag.coffeehelper.data.getMockBeans
 import de.florianostertag.coffeehelper.presentation.theme.CoffeeHelperTheme
 
@@ -74,7 +79,16 @@ fun BeanListScreen(
     }
 }
 
-class PreviewBeanListViewModel : BeanListViewModel() {
+class MockCoffeeApiService : CoffeeApiService {
+    override suspend fun getAllBeans(): List<Bean> {
+        return getMockBeans()
+    }
+
+    override suspend fun getExtractionsForBean(beanId: Long): List<Extraction> = throw NotImplementedError()
+    override suspend fun login(request: LoginRequest): LoginResponse = throw NotImplementedError()
+}
+
+class PreviewBeanListViewModel : BeanListViewModel(apiService = MockCoffeeApiService()) {
     init {
         _uiState.value = UiState.Success(getMockBeans())
     }
@@ -96,7 +110,7 @@ fun BeanListScreenPreview() {
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
 fun BeanListScreenLoadingPreview() {
-    val loadingViewModel = object : BeanListViewModel() {
+    val loadingViewModel = object : BeanListViewModel(apiService = MockCoffeeApiService()) {
         init { _uiState.value = UiState.Loading }
         override fun loadBeans() { /* Do nothing */ }
     }
