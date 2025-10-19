@@ -13,7 +13,7 @@ open class AppContainer(context: Context) {
     open val authManager = AuthManager(context)
 
     // RetrofitClient benötigt Manager und Interceptor
-    private val authInterceptor = AuthInterceptor(authManager)
+    open val authInterceptor = AuthInterceptor()
 
     open val retrofitClient = ApiClient(urlManager, authInterceptor)
 

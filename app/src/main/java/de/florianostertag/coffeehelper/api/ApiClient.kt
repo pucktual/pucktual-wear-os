@@ -6,7 +6,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 
-class ApiClient(private val urlManager: UrlManager, val authInterceptor: AuthInterceptor) {
+open class ApiClient(private val urlManager: UrlManager, val authInterceptor: AuthInterceptor) {
     private val moshi = com.squareup.moshi.Moshi.Builder()
         .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
         .build()
@@ -16,7 +16,7 @@ class ApiClient(private val urlManager: UrlManager, val authInterceptor: AuthInt
         .addInterceptor(authInterceptor)
         .build()
 
-    fun createApiService(): CoffeeApiService {
+    open fun createApiService(): CoffeeApiService {
         val baseUrl = urlManager.getBaseUrl()
 
         if (baseUrl.isBlank()) {

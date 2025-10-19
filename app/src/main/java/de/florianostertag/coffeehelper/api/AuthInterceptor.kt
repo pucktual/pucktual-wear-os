@@ -3,7 +3,7 @@ package de.florianostertag.coffeehelper.api
 import okhttp3.Interceptor
 import okhttp3.Response
 
-open class AuthInterceptor(private val authManager: AuthManager) : Interceptor {
+open class AuthInterceptor() : Interceptor {
 
     @Volatile
     private var currentToken: String? = null

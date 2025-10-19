@@ -9,6 +9,7 @@ import de.florianostertag.coffeehelper.data.Bean
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 open class BeanListViewModel(
     private val apiService: CoffeeApiService
@@ -21,6 +22,7 @@ open class BeanListViewModel(
         object Loading : UiState()
         data class Success(val beans: List<Bean>) : UiState()
         data class Error(val message: String) : UiState()
+        object Unauthorized : UiState()
     }
 
     init {
@@ -33,8 +35,15 @@ open class BeanListViewModel(
             try {
                 val beans = apiService.getAllBeans()
                 _uiState.value = UiState.Success(beans)
+            } catch (e: HttpException) {
+                // Prüft auf 401 Unauthorized
+                if (e.code() == 401) {
+                    _uiState.value = UiState.Unauthorized
+                } else {
+                    _uiState.value = UiState.Error("API Fehler: ${e.message()}")
+                }
             } catch (e: Exception) {
-                _uiState.value = UiState.Error("Fehler beim Laden: ${e.message}")
+                _uiState.value = UiState.Error("Netzwerkfehler: ${e.message}")
             }
         }
     }

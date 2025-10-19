@@ -45,4 +45,31 @@ class AuthWorker(
             false
         }
     }
+
+    /**
+     * Führt einen manuellen Login mit expliziten Anmeldedaten durch.
+     */
+    suspend fun manualLogin(username: String, password: String): Boolean {
+        return try {
+            val loginRequest = LoginRequest(username, password)
+            val response = appContainer.coffeeApiService.login(loginRequest)
+            val token = response.accessToken
+
+            // 1. Token speichern
+            appContainer.authManager.saveAuthToken(token)
+
+            // 2. Interceptor aktualisieren
+            appContainer.retrofitClient.authInterceptor.setToken(token)
+
+            // 3. Optional: Credentials für zukünftigen Auto-Login speichern
+            appContainer.authManager.saveCredentials(username, password)
+            true
+
+        } catch (e: Exception) {
+            // Löschen alter Tokens bei Misserfolg
+            appContainer.authManager.clearAll()
+            appContainer.retrofitClient.authInterceptor.setToken(null)
+            false
+        }
+    }
 }
