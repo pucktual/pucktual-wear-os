@@ -43,6 +43,7 @@ fun BeanListScreen(
     val listState = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()
 
+
     ScreenScaffold(
         scrollState = listState
     ) {
@@ -65,7 +66,7 @@ fun BeanListScreen(
             is BeanListViewModel.UiState.Success -> {
                 TransformingLazyColumn(
                     state = listState,
-                    contentPadding = PaddingValues(horizontal = 15.dp)
+                    contentPadding = PaddingValues(top = 32.dp, bottom = 32.dp, start = 8.dp, end = 8.dp)
                 ) {
                     item {
                         ListHeader(
