@@ -3,6 +3,7 @@ package de.florianostertag.coffeehelper.ui
 import android.app.RemoteInput
 import android.content.Intent
 import android.speech.RecognizerIntent
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -27,13 +28,16 @@ fun UrlSetupScreen(
 
     val openInput = wearTextInputHandler()
 
-    val saveAndProceed: (String) -> Unit = {
+    val saveAndProceed: (String) -> Unit = { newUrl ->
         errorMessage = null
 
-        val url = currentUrl.trim()
+        val url = newUrl.trim()
+        Log.d("UrlSetupScreen", "Benutzer hat folgende URL eingegeben: $url")
+
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             errorMessage = "URL muss mit http:// oder https:// beginnen."
         } else {
+            currentUrl = url
             urlManager.saveBaseUrl(url)
         }
 
@@ -42,47 +46,54 @@ fun UrlSetupScreen(
         }
     }
 
-    UrlSetupScreenForm(openUrlInput = { openInput("https://", saveAndProceed) }, errorMessage)
+    UrlSetupScreenForm(openUrlInput = {
+        openInput(currentUrl) { enteredUrl ->
+            saveAndProceed(enteredUrl)
+        }}, errorMessage)
 }
 private const val TEXT_INPUT_KEY = "wear_text_input"
 
 @Composable
 fun wearTextInputHandler(): (initialText: String, onTextEntered: (String) -> Unit) -> Unit {
 
-    // Wir nutzen hier nur einen einzelnen Launcher für alle Eingaben
     var onTextEnteredCallback by remember { mutableStateOf<(String) -> Unit>({}) }
 
-    // 1. Definiere den Launcher für das Ergebnis der Texteingabe-Activity
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        // Rufe das Ergebnis ab
-        val remoteInput = RemoteInput.getResultsFromIntent(result.data)
-        val enteredText = remoteInput?.getString(TEXT_INPUT_KEY) ?: ""
+        val data = result.data // Das Ergebnis-Intent
 
-        // Führe den spezifischen State-Update-Callback aus
-        onTextEnteredCallback(enteredText)
+        val remoteInput = RemoteInput.getResultsFromIntent(data)
+        var enteredText = remoteInput?.getString(TEXT_INPUT_KEY)
+
+        if (enteredText.isNullOrBlank()) {
+            val results = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            enteredText = results?.get(0)
+        }
+
+        onTextEnteredCallback(enteredText ?: "")
     }
 
-    // 2. Liefere die Funktion zurück, die die Activity startet
-    // Diese Funktion hat 3 Argumente
     return { initialText: String, onTextEntered: (String) -> Unit ->
 
-        // Speichere den spezifischen Update-Callback für diesen Aufruf
         onTextEnteredCallback = onTextEntered
 
-        // Erstelle den RemoteInput
         val remoteInput = RemoteInput.Builder(TEXT_INPUT_KEY)
             .setLabel("Eingabe")
             .setAllowFreeFormInput(true)
             .build()
 
         // Erstelle das Intent (um die Standard-Texteingabe-Activity zu starten)
+        // Verwenden Sie ACTION_SEND oder ACTION_GET_CONTENT, wenn Sie nur die Tastatur anzeigen möchten,
+        // aber RecognizerIntent ist typisch für die initiale Wear OS Eingabe.
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_PROMPT, "URL eingeben")
-            //putExtra(RemoteInput.EXTRA_REMOTE_INPUTS, arrayOf(remoteInput))
-            // Füge diesen Flag hinzu, wenn Sie die QWERTY-Tastatur auf der Uhr erzwingen möchten
-            // addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+            // WICHTIG: Füge das RemoteInput-Array hinzu, um die Tastatureingabe zu ermöglichen!
+            // Der standardmäßige Android-Eingabemechanismus nutzt dies.
+            //val remoteInputs = arrayOf(remoteInput)
+            //RemoteInput.addResultsToIntent(remoteInputs, this, null) // Fügt RemoteInput hinzu
+            putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "de.florianostertag.coffeehelper")
         }
 
         launcher.launch(intent)
