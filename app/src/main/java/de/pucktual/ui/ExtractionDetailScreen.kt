@@ -52,6 +52,7 @@ import de.pucktual.data.Extraction
 import de.pucktual.data.LoginRequest
 import de.pucktual.data.LoginResponse
 import de.pucktual.data.getMockBeans
+import de.pucktual.data.getMockExtractions
 import de.pucktual.presentation.theme.CoffeeHelperTheme
 
 @Composable
@@ -260,9 +261,20 @@ class PreviewExtractionDetailViewModel(val previewState: UiState) : ExtractionDe
     override fun loadExtractions() { /* Do nothing */ }
 }
 
+
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
-fun ExtractionDetailScreenPreviewRound() {
+fun ExtractionDetailScreenPreview() {
+    CoffeeHelperTheme {
+        ExtractionDetailScreen(
+            viewModel = PreviewExtractionDetailViewModel(ExtractionDetailViewModel.UiState.Success(getMockExtractions()))
+        )
+    }
+}
+
+@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
+@Composable
+fun ExtractionDetailScreenPreviewEmpty() {
     CoffeeHelperTheme {
         ExtractionDetailScreen(
             viewModel = PreviewExtractionDetailViewModel(ExtractionDetailViewModel.UiState.Empty)
@@ -272,25 +284,10 @@ fun ExtractionDetailScreenPreviewRound() {
 
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
-fun ExtractionDetailScreenPreviewSquare() {
+fun ExtractionDetailScreenPreviewLoading() {
     CoffeeHelperTheme {
         ExtractionDetailScreen(
             viewModel = PreviewExtractionDetailViewModel(ExtractionDetailViewModel.UiState.Loading)
-        )
-    }
-}
-
-// Optional: Preview für den Ladezustand
-@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true, name = "Loading State")
-@Composable
-fun ExtractionDetailScreenLoadingPreview() {
-    val loadingViewModel = object : ExtractionDetailViewModel(beanId = 1L, apiService = MockCoffeeApiService()) {
-        init { _uiState.value = UiState.Loading }
-        override fun loadExtractions() { /* Do nothing */ }
-    }
-    CoffeeHelperTheme {
-        ExtractionDetailScreen(
-            viewModel = loadingViewModel
         )
     }
 }

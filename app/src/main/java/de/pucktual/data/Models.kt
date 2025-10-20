@@ -42,3 +42,11 @@ fun getMockBeans(): List<Bean> {
         Bean(id = 6, name = "Brasilien Santos", manufacturer = "Großröster")
     )
 }
+
+fun getMockExtractions(): List<Extraction> {
+    return listOf(
+        Extraction(id = 1, inputGrams = 18.0, outputGrams = 42.0, time = 25, grind = 17, nextExtractionHint = "Next hint"),
+        Extraction(id = 2, inputGrams = 18.4, outputGrams = 42.0, time = 30, grind = 20, nextExtractionHint = "Next hint"),
+        Extraction(id = 3, inputGrams = 18.7, outputGrams = 42.0, time = 28, grind = 22, nextExtractionHint = "Next hint"),
+    )
+}
