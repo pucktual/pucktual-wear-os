@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace = "de.florianostertag.coffeehelper"
+    namespace = "de.pucktual"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "de.florianostertag.coffeehelper"
+        applicationId = "de.pucktual"
         minSdk = 34
         targetSdk = 36
         versionCode = 1
