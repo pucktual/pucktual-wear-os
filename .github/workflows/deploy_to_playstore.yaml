@@ -14,7 +14,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Download Artifact (AAB)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: pucktual-release
           path: artifacts/
