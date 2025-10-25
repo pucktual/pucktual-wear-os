@@ -12,9 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Balance
 import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocalCafe
 import androidx.compose.material.icons.filled.Scale
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -125,13 +129,13 @@ fun PreparationPage(extraction: Extraction) {
         FirstExtractionMetric(
             value = String.format("%.1f", extraction.inputGrams),
             label = "In",
-            icon = Icons.Filled.Scale,
+            icon = Icons.Filled.Balance,
             modifier = Modifier.align(Alignment.TopEnd)
         )
         SecondExtractionMetric(
             value = extraction.grind?.toString() ?: "N/A",
             label = "Mahlgrad",
-            icon = Icons.Filled.Grain,
+            icon = Icons.Filled.Settings,
             modifier = Modifier.align(Alignment.BottomStart)
         )
     }
@@ -147,13 +151,13 @@ fun ExtractionPage(extraction: Extraction) {
         FirstExtractionMetric(
             value = extraction.time.toString(),
             label = "Zeit",
-            icon = Icons.Filled.Scale,
+            icon = Icons.Filled.Watch,
             modifier = Modifier.align(Alignment.TopEnd)
         )
         SecondExtractionMetric(
             value = extraction.outputGrams.toString(),
             label = "Out",
-            icon = Icons.Filled.Grain,
+            icon = Icons.Filled.LocalCafe,
             modifier = Modifier.align(Alignment.BottomStart)
         )
     }
@@ -193,7 +197,7 @@ fun FirstExtractionMetric(value: String, label: String, icon: ImageVector, modif
         Row (verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 icon, contentDescription = label,
-                modifier = Modifier.size(15.dp), tint = MaterialTheme.colorScheme.secondary
+                modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.secondary
             )
             Spacer(Modifier.width(3.dp))
             Text(
