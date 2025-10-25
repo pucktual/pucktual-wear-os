@@ -19,7 +19,8 @@ data class LoginResponse(
 data class Bean(
     val id: Long,
     val name: String,
-    val manufacturer: String
+    val manufacturer: String,
+    val decaf: Boolean
 )
 
 @JsonClass(generateAdapter = true)
@@ -34,12 +35,12 @@ data class Extraction(
 
 fun getMockBeans(): List<Bean> {
     return listOf(
-        Bean(id = 1, name = "Kolumbien La Palma", manufacturer = "Röster XYZ"),
-        Bean(id = 2, name = "Äthiopien Yirgacheffe", manufacturer = "Spezialitätenrösterei"),
-        Bean(id = 3, name = "Brasilien Santos", manufacturer = "Großröster"),
-        Bean(id = 4, name = "Brasilien Santos", manufacturer = "Großröster"),
-        Bean(id = 5, name = "Brasilien Santos", manufacturer = "Großröster"),
-        Bean(id = 6, name = "Brasilien Santos", manufacturer = "Großröster")
+        Bean(id = 1, name = "Kolumbien La Palma", manufacturer = "Röster XYZ", decaf = false),
+        Bean(id = 2, name = "Äthiopien Yirgacheffe", manufacturer = "Spezialitätenrösterei", decaf = false),
+        Bean(id = 3, name = "Brasilien Santos", manufacturer = "Großröster", decaf = true),
+        Bean(id = 4, name = "Brasilien Santos", manufacturer = "Großröster", decaf = false),
+        Bean(id = 5, name = "Brasilien Santos", manufacturer = "Großröster", decaf = true),
+        Bean(id = 6, name = "Brasilien Santos", manufacturer = "Großröster", decaf = false)
     )
 }
 
