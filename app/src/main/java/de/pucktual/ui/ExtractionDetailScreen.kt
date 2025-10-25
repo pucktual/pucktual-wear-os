@@ -1,57 +1,51 @@
 package de.pucktual.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AvTimer
-import androidx.compose.material.icons.filled.CallMade
-import androidx.compose.material.icons.filled.CallReceived
 import androidx.compose.material.icons.filled.Grain
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Scale
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.items
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.material.Card
-import androidx.wear.compose.material.CardDefaults
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.CircularProgressIndicator
-import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.ListHeader
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
-import androidx.wear.compose.material.Vignette
-import androidx.wear.compose.material.VignettePosition
+import androidx.wear.compose.foundation.pager.HorizontalPager
+import androidx.wear.compose.foundation.pager.rememberPagerState
+import androidx.wear.compose.material3.AnimatedPage
+import androidx.wear.compose.material3.CircularProgressIndicator
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.HorizontalPagerScaffold
+import androidx.wear.compose.material3.PagerScaffoldDefaults
 import androidx.wear.tooling.preview.devices.WearDevices
-import de.pucktual.api.CoffeeApiService
-import de.pucktual.data.Bean
 import de.pucktual.data.Extraction
-import de.pucktual.data.LoginRequest
-import de.pucktual.data.LoginResponse
-import de.pucktual.data.getMockBeans
 import de.pucktual.data.getMockExtractions
 import de.pucktual.presentation.theme.CoffeeHelperTheme
 
@@ -60,62 +54,60 @@ fun ExtractionDetailScreen(
     viewModel: ExtractionDetailViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val listState = rememberScalingLazyListState()
+    val pageCount = 3
+    val pagerState = rememberPagerState(pageCount = { pageCount })
 
-    Scaffold(
-        vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
-        timeText = { TimeText() }
-    ) {
-        when (val state = uiState) {
-            is ExtractionDetailViewModel.UiState.Loading -> {
-                Box(contentAlignment = androidx.compose.ui.Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator()
-                }
-            }
-            is ExtractionDetailViewModel.UiState.Error -> {
-                Text(state.message, style = MaterialTheme.typography.caption1)
-            }
-            ExtractionDetailViewModel.UiState.Empty -> {
-                Text("Keine Extraktionen für diese Bohne gespeichert.")
-            }
-            is ExtractionDetailViewModel.UiState.Success -> {
-                val latestExtraction = state.extractions.first()
 
-                ScalingLazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    state = listState,
-                    contentPadding = PaddingValues(
-                        top = 32.dp,
-                        bottom = 32.dp
-                    )
+    when (val state = uiState) {
+        is ExtractionDetailViewModel.UiState.Loading -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        is ExtractionDetailViewModel.UiState.Error -> {
+            Text(state.message, style = MaterialTheme.typography.titleLarge)
+        }
+
+        ExtractionDetailViewModel.UiState.Empty -> {
+            Text("Keine Extraktionen für diese Bohne gespeichert.")
+        }
+
+        is ExtractionDetailViewModel.UiState.Success -> {
+            val latestExtraction = state.extractions.first()
+            CustomRingScaffold(
+                flowColor = Color(0xFF4CAF50),
+                profileColor = Color(0xFF03A9F4),
+                isFlowPerfect = true,
+                isProfilePerfect = true
+            ) {
+                HorizontalPagerScaffold(
+                    pagerState = pagerState,
                 ) {
-                    item { ListHeader { Text("Aktuelles Rezept") } }
-
-                    // --- Haupt-Rezept Card ---
-                    item {
-                        RecipeCard(extraction = latestExtraction)
-                    }
-
-                    // --- Hinweis ---
-                    latestExtraction.nextExtractionHint?.takeIf { it.isNotBlank() }?.let { hint ->
-                        item {
-                            Text("Tipp:", style = MaterialTheme.typography.caption1, modifier = Modifier.padding(top = 8.dp))
-                        }
-                        item {
-                            Text(hint, style = MaterialTheme.typography.body2)
-                        }
-                    }
-
-                    // --- Historie ---
-                    if (state.extractions.size > 1) {
-                        item { ListHeader { Text("Verlauf") } }
-                        items(state.extractions.drop(1)) { extraction ->
-                            Chip(
-                                onClick = { /* Zeige volles Detail in einem Dialog? */ },
-                                modifier = Modifier.fillMaxWidth(),
-                                label = { Text("Verhältnis ${String.format("%.1f", extraction.outputGrams / extraction.inputGrams)}:1") },
-                                secondaryLabel = { Text("${extraction.inputGrams}g IN | ${extraction.time}s | ID ${extraction.id}") }
-                            )
+                    HorizontalPager(
+                        state = pagerState,
+                        flingBehavior = PagerScaffoldDefaults.snapWithSpringFlingBehavior(state = pagerState),
+                        modifier = Modifier.fillMaxSize().offset(y = (-10).dp)
+                    ) { page ->
+                        when (page) {
+                            0 -> {
+                                AnimatedPage(pageIndex = 0, pagerState = pagerState) {
+                                    PreparationPage(latestExtraction)
+                                }
+                            }
+                            1 -> {
+                                AnimatedPage(pageIndex = 1, pagerState = pagerState) {
+                                    ExtractionPage(latestExtraction)
+                                }
+                            }
+                            2 -> {
+                                AnimatedPage(pageIndex = 2, pagerState = pagerState) {
+                                    HintPage(latestExtraction)
+                                }
+                            }
                         }
                     }
                 }
@@ -124,133 +116,216 @@ fun ExtractionDetailScreen(
     }
 }
 
-// Helper Composable, um das Hauptrezept visuell hervorzuheben
 @Composable
-fun RecipeCard(extraction: Extraction, modifier: Modifier = Modifier) {
-    Card(
-        onClick = { /* Keine Aktion */ },
-        modifier = modifier.fillMaxWidth().padding(vertical = 4.dp),
-        backgroundPainter = CardDefaults.cardBackgroundPainter(),
+fun PreparationPage(extraction: Extraction) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceAround
-        ) {
-            // Obere Reihe: Mahlgrad & IN
-            Row(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                // Neu: Arrangement.Center für horizontale Zentrierung der Row-Inhalte
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically // Vertikale Zentrierung innerhalb der Reihe
-            ) {
-                // Oben Links: Mahlgrad
-                RecipeDataItem(
-                    icon = Icons.Filled.Grain,
-                    label = "Grind",
-                    value = extraction.grind?.toString() ?: "-",
-                    modifier = Modifier.weight(1f) // Nimmt die Hälfte der Breite
-                )
+        FirstExtractionMetric(
+            value = String.format("%.1f", extraction.inputGrams),
+            label = "In",
+            icon = Icons.Filled.Scale,
+            modifier = Modifier.align(Alignment.TopEnd)
+        )
+        SecondExtractionMetric(
+            value = extraction.grind?.toString() ?: "N/A",
+            label = "Mahlgrad",
+            icon = Icons.Filled.Grain,
+            modifier = Modifier.align(Alignment.BottomStart)
+        )
+    }
+}
 
-                // Trennlinie vertikal
-                VerticalDivider(
-                    modifier = Modifier.fillMaxHeight(0.7f) // Nimmt 70% der vertikalen Höhe der Reihe
-                        .padding(horizontal = 4.dp)
-                )
+@Composable
+fun ExtractionPage(extraction: Extraction) {
 
-                // Oben Rechts: IN
-                RecipeDataItem(
-                    icon = Icons.Filled.CallReceived,
-                    label = "In",
-                    value = "${String.format("%.1f", extraction.inputGrams)}g",
-                    modifier = Modifier.weight(1f) // Nimmt die Hälfte der Breite
-                )
-            }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        FirstExtractionMetric(
+            value = extraction.time.toString(),
+            label = "Zeit",
+            icon = Icons.Filled.Scale,
+            modifier = Modifier.align(Alignment.TopEnd)
+        )
+        SecondExtractionMetric(
+            value = extraction.outputGrams.toString(),
+            label = "Out",
+            icon = Icons.Filled.Grain,
+            modifier = Modifier.align(Alignment.BottomStart)
+        )
+    }
+}
 
-            // Trennlinie horizontal zwischen den Reihen
-            Divider(
-                modifier = Modifier.fillMaxWidth(0.8f) // Nimmt 80% der Breite
-                    .align(Alignment.CenterHorizontally) // Zentriert die Linie horizontal
-                    .padding(vertical = 4.dp),
-                color = MaterialTheme.colors.onSurface.copy(alpha = 0.3f) // Leichtere Farbe
+@Composable
+fun HintPage(extraction: Extraction) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(Icons.Filled.Info, contentDescription = "Hinweis Icon")
+        Text(
+            text = "Für die nächste Extraktion:",
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = extraction.nextExtractionHint?.takeIf { it.isNotBlank() } ?: "Perfektes Ergebnis! Beibehalten.",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+fun FirstExtractionMetric(value: String, label: String, icon: ImageVector, modifier: Modifier) {
+    val secondaryBackground = MaterialTheme.colorScheme.secondary
+
+    Box(
+        modifier = modifier
+            .padding(all = 10.dp)
+            .rotate(-20.0f)
+            .offset(x = (5).dp, y = 30.dp)
+    ) {
+        Row (verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                icon, contentDescription = label,
+                modifier = Modifier.size(15.dp), tint = MaterialTheme.colorScheme.secondary
             )
-
-            // Untere Reihe: Dauer & OUT
-            Row(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Unten Links: Dauer
-                RecipeDataItem(
-                    icon = Icons.Filled.AvTimer,
-                    label = "Time",
-                    value = "${extraction.time}s",
-                    modifier = Modifier.weight(1f)
-                )
-
-                // Trennlinie vertikal
-                VerticalDivider(
-                    modifier = Modifier.fillMaxHeight(0.7f)
-                        .padding(horizontal = 4.dp)
-                )
-
-                // Unten Rechts: OUT
-                RecipeDataItem(
-                    icon = Icons.Filled.CallMade,
-                    label = "Out",
-                    value = "${String.format("%.1f", extraction.outputGrams)}g",
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            Spacer(Modifier.width(3.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.secondary
+            )
+            Spacer(Modifier.width(10.dp))
+            Text(
+                modifier = Modifier
+                    .drawBehind {
+                        drawRoundRect(
+                            color = secondaryBackground,
+                            cornerRadius = CornerRadius(10.dp.toPx())
+                        )
+                    }.padding(10.dp, bottom = 5.dp, top = 5.dp, end = 35.dp),
+                text = value,
+                style = MaterialTheme.typography.numeralMedium,
+                color = MaterialTheme.colorScheme.onSecondary
+            )
         }
     }
 }
 
 @Composable
-fun RecipeDataItem(icon: ImageVector, label: String, value: String, modifier: Modifier = Modifier) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally, // Icons und Werte zentrieren
-        verticalArrangement = Arrangement.Center,
-        modifier = modifier.padding(4.dp)
+fun SecondExtractionMetric(value: String, label: String, icon: ImageVector, modifier: Modifier = Modifier){
+    val primaryBackground = MaterialTheme.colorScheme.primary
+
+    Box(
+        modifier = modifier
+            .padding(all = 10.dp)
+            .rotate(-20.0f)
+            .offset(y = (-10).dp)
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colors.secondary
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.title3,
-            color = MaterialTheme.colors.onSurface
-        )
+        Row (verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                modifier = Modifier
+                    .drawBehind{
+                        drawRoundRect(
+                            color = primaryBackground,
+                            cornerRadius = CornerRadius(10.dp.toPx())
+                        )
+                    }.padding(30.dp, bottom = 5.dp, top = 5.dp, end=10.dp)
+                ,
+                text = value,
+                style = MaterialTheme.typography.numeralMedium,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+            Spacer(Modifier.width(10.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.width(3.dp))
+            Icon(
+                icon, contentDescription = label,
+                modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary
+            )
+        }
+
     }
 }
 
-@Composable
-fun VerticalDivider(
-    modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.3f),
-    thickness: Dp = 1.dp
-) {
-    Box(
-        modifier = modifier
-            .width(thickness)
-            .background(color)
-    )
-}
 
 @Composable
-fun Divider(
-    modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.3f),
-    thickness: Dp = 1.dp
+fun CustomRingScaffold(
+    flowColor: Color,
+    profileColor: Color,
+    isFlowPerfect: Boolean,
+    isProfilePerfect: Boolean,
+    ringThickness: Dp = 6.dp,
+    content: @Composable () -> Unit
 ) {
+    val thicknessPx = with(LocalDensity.current) { ringThickness.toPx() }
+
     Box(
-        modifier = modifier
-            .height(thickness)
-            .background(color)
-    )
+        modifier = Modifier
+            .fillMaxSize()
+            .drawBehind {
+                val center = Offset(size.width / 2f, size.height / 2f)
+                val strokeStyle = Stroke(width = thicknessPx)
+
+                val flowBrush = Brush.sweepGradient(
+                    colorStops = arrayOf(
+                        0.0f to flowColor,      // 0° (12 Uhr)
+                        0.2f to flowColor,     // 54° (Fokus nach 12 Uhr)
+                        0.5f to Color.Transparent,     // 180° (6 Uhr): Bleibt transparent
+                        0.8f to flowColor,     // 306° (Fokus vor 12 Uhr)
+                        1.0f to flowColor       // 360° (Zurück zu 12 Uhr)
+                    ),
+                    center = center
+                )
+
+                val profileBrush = Brush.sweepGradient(
+                    colorStops = arrayOf(
+                        0.0f to Color.Transparent,
+                        0.2f to Color.Transparent,    // 90° (3 Uhr): Fadet zu transparent
+                        0.3f to profileColor,      // 126° (Farbe beginnt)
+                        0.5f to profileColor,       // 180° (6 Uhr): Reine Farbe
+                        0.7f to profileColor,      // 234° (Farbe endet)
+                        0.8f to Color.Transparent,    // 270° (9 Uhr): Fadet zu transparent
+                        1.0f to Color.Transparent
+                    ),
+                    center = center
+                )
+
+                if (!isFlowPerfect) {
+                    drawArc(
+                        brush = flowBrush,
+                        startAngle = 0f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        size = size,
+                        style = strokeStyle
+                    )
+                }
+
+                if (!isProfilePerfect) {
+                    drawArc(
+                        brush = profileBrush,
+                        startAngle = 0f,    // Starte bei 12 Uhr
+                        sweepAngle = 360f,  // Zeichne den gesamten Kreis
+                        useCenter = false,
+                        size = size,
+                        style = strokeStyle
+                    )
+                }
+            }
+    ) {
+        content()
+    }
 }
 
 class PreviewExtractionDetailViewModel(val previewState: UiState) : ExtractionDetailViewModel(
@@ -261,6 +336,29 @@ class PreviewExtractionDetailViewModel(val previewState: UiState) : ExtractionDe
     override fun loadExtractions() { /* Do nothing */ }
 }
 
+@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
+@Composable
+fun PreparationPagePreview() {
+    CoffeeHelperTheme {
+        PreparationPage(extraction = getMockExtractions().first())
+    }
+}
+
+@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
+@Composable
+fun ExtractionPagePreview() {
+    CoffeeHelperTheme {
+        ExtractionPage(extraction = getMockExtractions().first())
+    }
+}
+
+@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
+@Composable
+fun HintPagePreview() {
+    CoffeeHelperTheme {
+        HintPage(extraction = getMockExtractions().first())
+    }
+}
 
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
