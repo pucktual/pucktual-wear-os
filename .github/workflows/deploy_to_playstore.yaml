@@ -1,0 +1,29 @@
+name: Deploy to Google Play
+
+on:
+  workflow_run:
+    workflows: ["Android CI Build and Sign"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Download Artifact (AAB)
+        uses: actions/download-artifact@v4
+        with:
+          name: pucktual-release
+          path: artifacts/
+
+      - name: Deploy to Internal Test Track
+        uses: r0adkll/upload-google-play@v1 
+        with:
+          serviceAccountJson: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_KEY }}
+          packageName: de.pucktual 
+          releaseFiles: artifacts/*.aab
+          track: internal
+          status: completed
