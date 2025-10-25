@@ -1,14 +1,11 @@
-name: Android CI Build
+name: Android CI Build and Sign
 
-# Definiert, wann dieser Workflow ausgeführt werden soll
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
-      
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,30 +13,28 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '17' 
           distribution: 'temurin'
-          cache: gradle
-          
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
-          
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+          java-version: '17'
+          cache: 'gradle'
 
-      - name: Run Release Build (AAB/APK)
-        run: ./gradlew assembleRelease
+      - name: Setup Signing Environment Variables
+        run: |
+          echo "${{ secrets.SIGNING_KEYSTORE_BASE64 }}" | base64 --decode > release-key.jks
+          
+          echo "KEYSTORE_FILE=$PWD/release-key.jks" >> $GITHUB_ENV
+          echo "KEYSTORE_PASSWORD=${{ secrets.SIGNING_STORE_PASSWORD }}" >> $GITHUB_ENV
+          echo "KEY_ALIAS=${{ secrets.SIGNING_KEY_ALIAS }}" >> $GITHUB_ENV
+          echo "KEY_PASSWORD=${{ secrets.SIGNING_KEY_PASSWORD }}" >> $GITHUB_ENV
 
-      - name: Upload Release Artifact
+      - name: Build Signed AAB
+        run: ./gradlew :app:bundleRelease
+        
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-bundle
+          name: pucktual-release
           path: app/build/outputs/bundle/release/app-release.aab
+          retention-days: 7
