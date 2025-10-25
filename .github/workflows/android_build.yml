@@ -29,6 +29,21 @@ jobs:
           echo "KEY_ALIAS=${{ secrets.SIGNING_KEY_ALIAS }}" >> $GITHUB_ENV
           echo "KEY_PASSWORD=${{ secrets.SIGNING_KEY_PASSWORD }}" >> $GITHUB_ENV
 
+      - name: Debug Passwords Length
+        run: |
+          echo "Store Password Length: ${{ secrets.SIGNING_STORE_PASSWORD }} mit ${{ secrets.SIGNING_STORE_PASSWORD | length }} Zeichen"
+          echo "Key Password Length: ${{ secrets.SIGNING_KEY_PASSWORD }} mit ${{ secrets.SIGNING_KEY_PASSWORD | length }} Zeichen"
+          echo "Key Alias: ${{ secrets.SIGNING_KEY_ALIAS }}"
+
+          echo "Env Store Password Length: $KEYSTORE_PASSWORD mit ${#KEYSTORE_PASSWORD} Zeichen"
+          echo "Env Key Password Length: $KEY_PASSWORD mit ${#KEYSTORE_PASSWORD} Zeichen"
+
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+
+        if: ${{ secrets.SIGNING_STORE_PASSWORD | length == 0 }}
+
       - name: Build Signed AAB
         run: ./gradlew :app:bundleRelease
         
