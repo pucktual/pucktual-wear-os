@@ -15,8 +15,10 @@ android {
         applicationId = "de.pucktual"
         minSdk = 34
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        val buildVersionCode = System.getenv("VERSION_CODE")?.toIntOrNull() ?: 1
+
+        versionCode = buildVersionCode
+        versionName = "0.0.${buildVersionCode}"
     }
 
     signingConfigs {
