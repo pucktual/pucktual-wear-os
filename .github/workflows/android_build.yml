@@ -22,12 +22,12 @@ jobs:
 
       - name: Setup Signing Environment Variables
         run: |
-          echo "${{ SIGNING_KEYSTORE_BASE64 }}" | base64 --decode > release-key.jks
+          echo "$SIGNING_KEYSTORE_BASE64" | base64 --decode > release-key.jks
           
           echo "KEYSTORE_FILE=$PWD/release-key.jks" >> $GITHUB_ENV
-          echo "KEYSTORE_PASSWORD=${{ SIGNING_STORE_PASSWORD }}" >> $GITHUB_ENV
-          echo "KEY_ALIAS=${{ SIGNING_KEY_ALIAS }}" >> $GITHUB_ENV
-          echo "KEY_PASSWORD=${{ SIGNING_KEY_PASSWORD }}" >> $GITHUB_ENV
+          echo "KEYSTORE_PASSWORD=$SIGNING_STORE_PASSWORD" >> $GITHUB_ENV
+          echo "KEY_ALIAS=$SIGNING_KEY_ALIAS" >> $GITHUB_ENV
+          echo "KEY_PASSWORD=$SIGNING_KEY_PASSWORD" >> $GITHUB_ENV
         env:
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
