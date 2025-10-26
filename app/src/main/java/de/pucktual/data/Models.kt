@@ -20,8 +20,11 @@ data class Bean(
     val id: Long,
     val name: String,
     val manufacturer: String,
-    val decaf: Boolean
-)
+    @Json(name = "decaf")
+    val decafNullable: Boolean? = false
+) {
+    val decaf: Boolean = decafNullable ?: false
+}
 
 @JsonClass(generateAdapter = true)
 data class Extraction(
@@ -35,12 +38,12 @@ data class Extraction(
 
 fun getMockBeans(): List<Bean> {
     return listOf(
-        Bean(id = 1, name = "Kolumbien La Palma", manufacturer = "Röster XYZ", decaf = false),
-        Bean(id = 2, name = "Äthiopien Yirgacheffe", manufacturer = "Spezialitätenrösterei", decaf = false),
-        Bean(id = 3, name = "Brasilien Santos", manufacturer = "Großröster", decaf = true),
-        Bean(id = 4, name = "Brasilien Santos", manufacturer = "Großröster", decaf = false),
-        Bean(id = 5, name = "Brasilien Santos", manufacturer = "Großröster", decaf = true),
-        Bean(id = 6, name = "Brasilien Santos", manufacturer = "Großröster", decaf = false)
+        Bean(id = 1, name = "Kolumbien La Palma", manufacturer = "Röster XYZ", decafNullable = false),
+        Bean(id = 2, name = "Äthiopien Yirgacheffe", manufacturer = "Spezialitätenrösterei", decafNullable = false),
+        Bean(id = 3, name = "Brasilien Santos", manufacturer = "Großröster", decafNullable = true),
+        Bean(id = 4, name = "Brasilien Santos", manufacturer = "Großröster", decafNullable = false),
+        Bean(id = 5, name = "Brasilien Santos", manufacturer = "Großröster", decafNullable = true),
+        Bean(id = 6, name = "Brasilien Santos", manufacturer = "Großröster", decafNullable = false)
     )
 }
 
