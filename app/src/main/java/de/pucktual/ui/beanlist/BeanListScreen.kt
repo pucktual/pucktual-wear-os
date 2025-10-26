@@ -34,6 +34,7 @@ import de.pucktual.data.LoginRequest
 import de.pucktual.data.LoginResponse
 import de.pucktual.data.getMockBeans
 import de.pucktual.presentation.theme.CoffeeHelperTheme
+import de.pucktual.ui.common.ErrorScreen
 import de.pucktual.ui.config.LoginDialog
 
 @Composable
@@ -44,33 +45,45 @@ fun BeanListScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showLoginDialog by remember { mutableStateOf(false) }
 
-    val listState = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()
 
+    when (val state = uiState) {
+        is BeanListViewModel.UiState.Loading -> {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator()
+            }
+        }
 
-    ScreenScaffold(
-        scrollState = listState
-    ) {
-        when (val state = uiState) {
-            is BeanListViewModel.UiState.Loading -> {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator()
-                }
+        is BeanListViewModel.UiState.Unauthorized -> {
+            showLoginDialog = true
+            // Zeige weiterhin den Ladekreis, bis der Login erfolgreich ist
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator()
             }
-            is BeanListViewModel.UiState.Unauthorized -> {
-                showLoginDialog = true
-                // Zeige weiterhin den Ladekreis, bis der Login erfolgreich ist
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator()
-                }
-            }
-            is BeanListViewModel.UiState.Error -> {
-                Text(state.message, style = MaterialTheme.typography.caption1)
-            }
-            is BeanListViewModel.UiState.Success -> {
+        }
+
+        is BeanListViewModel.UiState.Error -> {
+            ErrorScreen(
+                state.message,
+                onClick = { viewModel.loadBeans() },
+                onClickLabel = "Erneut laden"
+            )
+        }
+
+        is BeanListViewModel.UiState.Success -> {
+            val listState = rememberTransformingLazyColumnState()
+
+            ScreenScaffold(
+                scrollState = listState
+            ) {
                 TransformingLazyColumn(
                     state = listState,
-                    contentPadding = PaddingValues(top = 32.dp, bottom = 32.dp, start = 8.dp, end = 8.dp)
+                    contentPadding = PaddingValues(
+                        top = 32.dp,
+                        bottom = 32.dp,
+                        start = 8.dp,
+                        end = 8.dp
+                    )
                 ) {
                     item {
                         ListHeader(
@@ -82,27 +95,29 @@ fun BeanListScreen(
                         ) { Text(text = "Meine Bohnen") }
                     }
                     items(state.beans) { bean ->
-                        BeanListEntry(bean, onClick = { onBeanSelected(bean.id) }, Modifier
-                            .fillMaxWidth())
+                        BeanListEntry(
+                            bean, onClick = { onBeanSelected(bean.id) }, Modifier
+                                .fillMaxWidth()
+                        )
                     }
                 }
             }
         }
+    }
 
-        if (showLoginDialog) {
-            LoginDialog(
-                // Wird ausgelöst, wenn der Login erfolgreich ist
-                onLoginSuccess = {
-                    showLoginDialog = false
-                    viewModel.loadBeans() // Erneuter Versuch, die Daten abzurufen
-                },
-                // Wird ausgelöst, wenn der Nutzer den Login abbricht
-                onCancel = {
-                    showLoginDialog = false
-                    // Optional: setze den Zustand auf Error, um den Abbruch anzuzeigen
-                }
-            )
-        }
+    if (showLoginDialog) {
+        LoginDialog(
+            // Wird ausgelöst, wenn der Login erfolgreich ist
+            onLoginSuccess = {
+                showLoginDialog = false
+                viewModel.loadBeans() // Erneuter Versuch, die Daten abzurufen
+            },
+            // Wird ausgelöst, wenn der Nutzer den Login abbricht
+            onCancel = {
+                showLoginDialog = false
+                // Optional: setze den Zustand auf Error, um den Abbruch anzuzeigen
+            }
+        )
     }
 }
 
@@ -111,7 +126,9 @@ class MockCoffeeApiService : CoffeeApiService {
         return getMockBeans()
     }
 
-    override suspend fun getExtractionsForBean(beanId: Long): List<Extraction> = throw NotImplementedError()
+    override suspend fun getExtractionsForBean(beanId: Long): List<Extraction> =
+        throw NotImplementedError()
+
     override suspend fun login(request: LoginRequest): LoginResponse = throw NotImplementedError()
 }
 
@@ -119,7 +136,9 @@ class PreviewBeanListViewModel : BeanListViewModel(apiService = MockCoffeeApiSer
     init {
         _uiState.value = UiState.Success(getMockBeans())
     }
-    override fun loadBeans() { /* Do nothing */ }
+
+    override fun loadBeans() { /* Do nothing */
+    }
 }
 
 
@@ -138,8 +157,12 @@ fun BeanListScreenPreview() {
 @Composable
 fun BeanListScreenLoadingPreview() {
     val loadingViewModel = object : BeanListViewModel(apiService = MockCoffeeApiService()) {
-        init { _uiState.value = UiState.Loading }
-        override fun loadBeans() { /* Do nothing */ }
+        init {
+            _uiState.value = UiState.Loading
+        }
+
+        override fun loadBeans() { /* Do nothing */
+        }
     }
     CoffeeHelperTheme {
         BeanListScreen(
