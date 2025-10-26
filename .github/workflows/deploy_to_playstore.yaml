@@ -44,10 +44,8 @@ jobs:
       - name: Deploy to Internal Test Track
         uses: r0adkll/upload-google-play@v1 
         with:
-          serviceAccountJsonPlainText: ${{ SERVICE_ACCOUNT_JSON }}
+          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: de.pucktual 
           releaseFiles: artifacts/*.aab
           track: internal
           status: completed
-        env:
-          SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
