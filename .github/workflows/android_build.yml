@@ -34,21 +34,6 @@ jobs:
           SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
 
-      - name: Debug Passwords Length
-        run: |
-          echo "Debugging Secret Lengths (Do not expose values):"
-          STORE_PASS_LEN=${#KEYSTORE_PASSWORD}
-          echo "Store Password Length: $STORE_PASS_LEN"
-          KEY_PASS_LEN=${#KEY_PASSWORD}
-          echo "Key Password Length: $KEY_PASS_LEN"
-          if [[ $STORE_PASS_LEN -eq 0 ]]; then
-            echo "ERROR: SIGNING_STORE_PASSWORD is empty or not loaded!"
-            exit 1 # Bricht den Build ab, um den Fehler zu erzwingen
-          fi
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-
       - name: Build Signed AAB
         run: ./gradlew :app:bundleRelease
         
