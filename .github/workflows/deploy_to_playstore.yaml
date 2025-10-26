@@ -48,4 +48,4 @@ jobs:
           packageName: de.pucktual 
           releaseFiles: artifacts/*.aab
           track: internal
-          status: completed
+          status: draft
