@@ -1,4 +1,4 @@
-package de.pucktual.ui
+package de.pucktual.ui.config
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable

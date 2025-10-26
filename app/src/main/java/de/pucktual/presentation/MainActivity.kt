@@ -23,11 +23,11 @@ import de.pucktual.AppContainer
 import de.pucktual.AuthWorker
 import de.pucktual.PucktualApp
 import de.pucktual.presentation.theme.CoffeeHelperTheme
-import de.pucktual.ui.BeanListScreen
-import de.pucktual.ui.BeanListViewModel
-import de.pucktual.ui.ExtractionDetailScreen
-import de.pucktual.ui.ExtractionDetailViewModel
-import de.pucktual.ui.UrlSetupScreen
+import de.pucktual.ui.beanlist.BeanListScreen
+import de.pucktual.ui.beanlist.BeanListViewModel
+import de.pucktual.ui.extractiondetails.ExtractionDetailScreen
+import de.pucktual.ui.extractiondetails.ExtractionDetailViewModel
+import de.pucktual.ui.config.UrlSetupScreen
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {

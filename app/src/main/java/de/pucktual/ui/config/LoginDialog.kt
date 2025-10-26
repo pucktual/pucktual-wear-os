@@ -1,4 +1,4 @@
-package de.pucktual.ui
+package de.pucktual.ui.config
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*

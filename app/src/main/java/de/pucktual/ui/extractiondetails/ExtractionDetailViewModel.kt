@@ -1,4 +1,4 @@
-package de.pucktual.ui
+package de.pucktual.ui.extractiondetails
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

@@ -1,9 +1,8 @@
-package de.pucktual.ui
+package de.pucktual.ui.beanlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import de.pucktual.api.ApiClient
 import de.pucktual.api.CoffeeApiService
 import de.pucktual.data.Bean
 import kotlinx.coroutines.flow.MutableStateFlow

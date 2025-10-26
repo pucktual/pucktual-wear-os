@@ -1,4 +1,4 @@
-package de.pucktual.ui
+package de.pucktual.ui.beanlist
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,6 +34,7 @@ import de.pucktual.data.LoginRequest
 import de.pucktual.data.LoginResponse
 import de.pucktual.data.getMockBeans
 import de.pucktual.presentation.theme.CoffeeHelperTheme
+import de.pucktual.ui.config.LoginDialog
 
 @Composable
 fun BeanListScreen(

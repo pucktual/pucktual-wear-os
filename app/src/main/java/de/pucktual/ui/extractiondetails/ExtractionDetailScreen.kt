@@ -1,4 +1,4 @@
-package de.pucktual.ui
+package de.pucktual.ui.extractiondetails
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,10 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Balance
-import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocalCafe
-import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.runtime.Composable
@@ -44,7 +42,6 @@ import androidx.wear.compose.material3.AnimatedPage
 import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.PagerScaffoldDefaults
@@ -52,6 +49,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
 import de.pucktual.data.Extraction
 import de.pucktual.data.getMockExtractions
 import de.pucktual.presentation.theme.CoffeeHelperTheme
+import de.pucktual.ui.beanlist.MockCoffeeApiService
 
 @Composable
 fun ExtractionDetailScreen(

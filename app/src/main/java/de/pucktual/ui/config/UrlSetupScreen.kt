@@ -1,4 +1,4 @@
-package de.pucktual.ui
+package de.pucktual.ui.config
 
 import android.app.RemoteInput
 import android.content.Intent

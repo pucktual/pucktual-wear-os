@@ -1,4 +1,4 @@
-package de.pucktual.ui
+package de.pucktual.ui.common
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box

@@ -1,4 +1,4 @@
-package de.pucktual.ui
+package de.pucktual.ui.beanlist
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +20,7 @@ import androidx.wear.compose.material3.Text
 import de.pucktual.data.Bean
 import de.pucktual.data.getMockBeans
 import de.pucktual.presentation.theme.CoffeeHelperTheme
+import de.pucktual.ui.common.StrikethroughCoffeeIcon
 
 @Composable
 fun BeanListEntry(
